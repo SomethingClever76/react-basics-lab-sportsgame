@@ -25,130 +25,124 @@
 // When the reset button is pressed the team stats should reset and the reset counter
 // should increase by 1
 
-//CODE FOR MEDIUM MODE
-// class Team extends React.Component {
-
-//   constructor(props) {
-//     super(props)
-
-//     this.state = {
-//       shots: 0,
-//       score: 0,
-//     }
-//     this.goalSound = new Audio("assets/audio/crowdCheer.mp3")
-//     this.shotSound = new Audio("assets/audio/onePersonCheer.mp3")
-//   }
-
-//   shotHandler = () => {
-//     this.shotSound.play()
-//     this.setState((state, props) => ({
-//       shots: state.shots + 1
-//     }))
-//     if (Math.random() < .25) {
-//       this.setState((state, props) => ({
-//         score: state.score + 1
-//       }))
-//       this.goalSound.play()
-//     }
-//   }
-
-//   render() {
-//     let shotPercentage;
-//     if (this.state.shots >= 1) {
-//       shotPercentage = <div>Shot Percentage: {(this.state.score / this.state.shots * 100).toFixed(1)}%</div>
-//     }
-//     return <h1>Yay! I'm the {this.props.name}
-//       <img width="100px" alt="team logo" src={this.props.logo}></img>
-//       shots: {this.state.shots}
-//       score: {this.state.score}
-//       <button onClick={this.shotHandler}>Shoot</button>
-//       {shotPercentage}
-//     </h1>
-//   }
-// }
-
-// class Game extends React.Component {
-//   render() {
-//     return (
-//       <div className="kyle">
-//         <h1>Welcome to {this.props.venue}</h1>
-//         <Team name="Home Team" logo="https://i.ebayimg.com/images/g/IBAAAOSwxOFaeP8r/s-l300.jpg" />
-//         <Team name="Away Team" logo="http://loodibee.com/wp-content/uploads/nfl-new-england-patriots-team-logo.png" />
-//       </div>
-//     )
-//   }
-// }
-
 class Game extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      teamOne: { shots: 0, score: 0 },
-      teamTwo: { shots: 0, score: 0 }
+      teamOne: {
+        shots: 0,
+        score: 0
+      },
+      teamTwo: {
+        shots: 0,
+        score: 0
+      }
     }
-    this.goalSound = new Audio("assets/audio/crowdCheer.mp3")
+
     this.shotSound = new Audio("assets/audio/onePersonCheer.mp3")
-    this.venue = "LucasOil Stadium";
+    this.scoreSound = new Audio("assets/audio/crowdCheer.mp3")
   };
 
-
-  shotHandler = () => {
+  shoot = (team) => {
+    const teamStatsKey = `${team}`
+    //here is where you pulled the score out for the correct team
+    let score = this.state[teamStatsKey].score
     this.shotSound.play()
-    this.setState((state, props) => ({
-      shots: state.shots + 1
-    }))
-    if (Math.random() < .25) {
-      this.setState((state, props) => ({
-        score: state.score + 1
-      }))
-      this.goalSound.play()
-    }
-  };
 
-  shotPercentage = () => {
-    if (this.state.shots >= 1) {
-      this.shotPercentageData = <div>Shot Percentage: {(this.state.score / this.state.shots * 100).toFixed(1)}%</div>
+    if (Math.random() < .25) {
+      
+      // this.setState((state, props) => ({
+      //   score: state.score + 1
+      // }))
+      //here is where we updating the scor fore the team that we grabbed on line 50
+      score = score + 1
+      this.scoreSound.play()
     }
+
+     //this is where you are updating state (shots and score) just once
+    this.setState((state, props) => ({
+      [teamStatsKey]: {
+        shots: state[teamStatsKey].shots + 1,
+        score
+      }
+    }))
   };
 
   render() {
-    let teamOneInfo = {
-      name: "Colts",
-      logo: <img src="assets/images/colts_logo"></img>
-      // shotPercentage()
-    }
-    let teamTwoInfo = {
-      name: "Patriots",
-      logo: <img src="assets/images/patriots_logo"></img>
-      // shotPercentage()
-    }
+    return (
+      <div className="Game">
+        <h1>Welcome to {this.props.venue}</h1>
+        <div className="Teams">
+          <h1>Yay! I'm the <Team
+            name={this.props.teamOne.name}
+            logo={this.props.teamOne.logo}
+            stats={this.state.teamOne}
+            shotHandler={() => this.shoot("teamOne")}
+          />
+          </h1>
 
-    return (<div>
-      <h1>Welcome to {this.venue}</h1>
-      <h1>Yay! I'm the {teamOneInfo.name} {teamOneInfo.logo}
-      <img width="100px" alt="team logo" src={this.props.logo}></img>
-      shots: {this.state.shots}
-      score: {this.state.score}
-      <button onClick={this.shotHandler}>Shoot</button>
-      {this.shotPercentageData}
-    </h1></div>)
+          <h1>Yay! I'm the <Team
+            name={this.props.teamTwo.name}
+            logo={this.props.teamTwo.logo}
+            stats={this.state.teamTwo}
+            shotHandler={() => this.shoot("teamTwo")}
+          />
+          </h1>
+        </div>
+      </div>)
   }
 };
 
 function Team(props) {
+  let shotPercentage;
+
+  if (props.stats.shots >= 1) {
+    shotPercentage = <div>Shot Percentage: {(props.stats.score / props.stats.shots * 100).toFixed(1)}%</div>
+  }
+
   return (
-    <h2>{props.name}</h2>
+    <div className="team">
+       {props.name}
+      
+      <div className="logo">
+        <img src={props.logo} width="100px" alt={props.name} />
+      </div>
+      
+      <div>
+        shots: {props.stats.shots}
+      </div>
+      
+      <div>
+        score: {props.stats.score}
+      </div>
+      
+      {shotPercentage}
+      
+      <button onClick={props.shotHandler}>Shoot</button>
+    </div>
   )
 }
 
-// Default App component that all other components are rendered through
+//***Default App component that all other components are rendered through
 function App(props) {
+  const colts = {
+    name: "Colts",
+    logo: "assets/images/colts_logo.jpg"
+  }
+
+  const patriots = {
+    name: "Patriots",
+    logo: "assets/images/patriots_logo.png"
+  }
+
   return (
-    <div className="kyle">
-      <Game/>
-      <Team name="awesome team"/>
-      {/* <Game venue = "LucasOil Stadium"/> */}
+    <div className="App">
+      <Game 
+      venue="LucasOil Stadium"
+      teamOne={colts}
+      teamTwo={patriots}
+      />
     </div>
   )
 }
